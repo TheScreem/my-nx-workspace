@@ -33,11 +33,12 @@ Tu dois connaître et appliquer les règles suivantes (déjà configurées dans 
 libs/
 ├── shared-ui/          # Composants UI réutilisables (UI pure, aucune dépendance métier)
 ├── data-access/        # Services HTTP, modèles, interceptors (pas de dépendance UI)
-└── feature-*/         # Features métier (peut dépendre de shared-ui et data-access)
-    ├── feature-orders/
-    ├── feature-auth/
-    └── feature-contacts/
+├── feature-orders/     # Feature commandes (peut dépendre de shared-ui et data-access)
+├── feature-auth/       # Feature authentification (peut dépendre de shared-ui et data-access)
+└── feature-contacts/   # Feature contacts (peut dépendre de shared-ui et data-access)
 ```
+
+**Note** : Toutes les libs sont au même niveau dans `libs/`. Le préfixe `feature-` est une convention de nommage, pas une hiérarchie de dossiers.
 
 ### Règles de Dépendances
 
@@ -56,14 +57,16 @@ libs/
 
 ### Générer une nouvelle lib
 
+**✅ SYNTAXE CORRECTE** : Utiliser `--name` et `--directory` pour créer les libs dans `libs/`
+
 ```bash
-npx nx g @nx/angular:library libs/<nom-lib> --unitTestRunner=vitest
+npx nx g @nx/angular:library --name=<nom-lib> --directory=libs/<nom-lib> --unitTestRunner=vitest
 ```
 
 **Exemples** :
 
-- `npx nx g @nx/angular:library libs/shared-ui --unitTestRunner=vitest`
-- `npx nx g @nx/angular:library libs/feature-auth --unitTestRunner=vitest`
+- `npx nx g @nx/angular:library --name=shared-ui --directory=libs/shared-ui --unitTestRunner=vitest`
+- `npx nx g @nx/angular:library --name=feature-auth --directory=libs/feature-auth --unitTestRunner=vitest`
 
 ### Générer un composant dans une lib
 
@@ -155,10 +158,10 @@ depConstraints: [
 
 **Exemple : Créer une nouvelle feature**
 
-1. Générer la lib :
+1. Générer la lib avec la syntaxe correcte :
 
 ```bash
-npx nx g @nx/angular:library feature-contacts --unitTestRunner=vitest
+npx nx g @nx/angular:library --name=feature-contacts --directory=libs/feature-contacts --unitTestRunner=vitest
 ```
 
 2. **Ajouter les tags** dans `libs/feature-contacts/project.json` :
@@ -175,6 +178,22 @@ npx nx g @nx/angular:library feature-contacts --unitTestRunner=vitest
 ```bash
 npx nx lint feature-contacts
 ```
+
+### ⚠️ IMPORTANT : Quand modifier les depConstraints
+
+Les `depConstraints` dans `eslint.config.mjs` (racine) sont **déjà configurés** pour les types de libs standard de ce projet :
+
+- ✅ `type:app` → peut importer `type:feature`, `type:data-access`, `type:ui`
+- ✅ `type:feature` → peut importer `type:data-access`, `type:ui`
+- ✅ `type:ui` → peut importer `type:data-access`
+- ✅ `type:data-access` → ne peut rien importer
+
+**Vous devez modifier les `depConstraints` uniquement si** :
+
+1. ❗ Vous créez un **nouveau type** de lib (ex: `type:utils`, `type:config`)
+2. ❗ Vous changez les **règles de dépendances** entre les types existants
+
+**Sinon** : Il suffit d'ajouter les tags dans `project.json` et les contraintes existantes s'appliqueront automatiquement.
 
 ### Matrice de dépendances
 
@@ -305,7 +324,7 @@ Avant d'utiliser un composant/service d'une lib, vérifier :
 
 2. **Est-ce de la logique métier spécifique à une feature ?**
 
-   - OUI → `feature-*/components/` ou `feature-*/services/`
+   - OUI → Dans la feature concernée (ex: `libs/feature-orders/src/lib/components/` ou `libs/feature-orders/src/lib/services/`)
    - NON → Vérifier si c'est de l'accès aux données → `data-access`
 
 3. **Est-ce un appel HTTP ou un modèle de données ?**
@@ -321,12 +340,16 @@ Avant de créer un composant/service, vérifier :
 
 1. [ ] La lib cible existe-t-elle ? Sinon, la générer avec `nx generate`
 2. [ ] **Les tags Nx sont-ils ajoutés dans le `project.json` ?** (type:app, type:feature, type:ui, type:data-access)
-3. [ ] Le composant/service est-il dans la bonne lib selon sa responsabilité ?
-4. [ ] Les dépendances respectent-elles les frontières (pas de dépendance circulaire) ?
-5. [ ] Le selector utilise-t-il le bon préfixe (`lib-` pour libs, `app-` pour apps) ?
-6. [ ] Les imports utilisent-ils les alias Nx (`@mini-crm/...`) ?
-7. [ ] Le composant/service est-il exporté dans le barrel export (`src/index.ts`) ?
-8. [ ] Le `project.json` et `tsconfig.base.json` sont-ils correctement configurés ?
+3. [ ] **Les `depConstraints` dans `eslint.config.mjs` sont-ils configurés pour le nouveau type de lib ?**
+4. [ ] Le composant/service est-il dans la bonne lib selon sa responsabilité ?
+5. [ ] Les dépendances respectent-elles les frontières (pas de dépendance circulaire) ?
+6. [ ] Le selector utilise-t-il le bon préfixe (`lib-` pour libs, `app-` pour apps) ?
+7. [ ] Les imports utilisent-ils les alias Nx (`@mini-crm/...`) ?
+8. [ ] Le composant/service est-il exporté dans le barrel export (`src/index.ts`) ?
+9. [ ] Le `project.json` et `tsconfig.base.json` sont-ils correctement configurés ?
+10. [ ] **Tester avec `npx nx lint <project>` pour vérifier les contraintes**
+
+**Note importante** : Les `depConstraints` dans `eslint.config.mjs` (racine) définissent les règles de dépendances entre les types de libs. Ils sont **déjà configurés** pour les types standard (app, feature, ui, data-access). Si vous créez un **nouveau type** de lib, vous devrez ajouter les contraintes correspondantes.
 
 ## 🚀 Exemples de Prompts que Tu Peux Traiter
 
