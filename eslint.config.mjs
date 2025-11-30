@@ -1,4 +1,5 @@
 import nx from '@nx/eslint-plugin';
+import sonarjs from 'eslint-plugin-sonarjs';
 
 export default [
   ...nx.configs['flat/base'],
@@ -60,7 +61,27 @@ export default [
       '**/*.cjs',
       '**/*.mjs',
     ],
-    // Override or add rules here
-    rules: {},
+    plugins: {
+      sonarjs: sonarjs,
+    },
+    rules: {
+      // ========================================
+      // RÈGLES SONARJS - QUALITÉ DE CODE
+      // ========================================
+      
+      // Règles Critiques (Erreurs)
+      'sonarjs/no-all-duplicated-branches': 'error',      // Branches identiques dans if/else
+      'sonarjs/no-element-overwrite': 'error',            // Écrasement d'éléments de tableau
+      'sonarjs/no-identical-conditions': 'error',         // Conditions identiques
+      'sonarjs/no-identical-expressions': 'error',        // Expressions identiques
+      
+      // Règles Importantes (Warnings)
+      'sonarjs/cognitive-complexity': ['warn', 15],       // Complexité cognitive max 15
+      'sonarjs/no-collapsible-if': 'warn',                // If imbriqués collapsables
+      'sonarjs/no-duplicate-string': ['warn', { threshold: 5 }],  // Strings dupliquées (min 5 fois)
+      'sonarjs/no-identical-functions': 'warn',           // Fonctions identiques
+      'sonarjs/prefer-immediate-return': 'warn',          // Return immédiat préféré
+      'sonarjs/no-small-switch': 'warn',                  // Switch avec trop peu de cases
+    },
   },
 ];
