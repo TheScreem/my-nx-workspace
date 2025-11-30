@@ -25,6 +25,7 @@ Tu dois connaître et appliquer les règles suivantes (déjà configurées dans 
 - **`.cursor/rules/debugging.mdc`** : Règles pour le debugging et la résolution de problèmes Angular 20
 - **`.cursor/rules/architecture.mdc`** : Principes architecturaux, structure Nx, flux de données, state management avec Signals
 - **`.cursor/rules/environments.mdc`** : Configuration multi-environnement (si création de services API)
+- **`.cursor/rules/performance.mdc`** : Optimisation des performances, bundle analysis, images, cache HTTP
 
 **⚠️ Important** : Ces règles sont automatiquement chargées par Cursor selon les fichiers sur lesquels tu travailles. Cependant, pour être sûr de les consulter, tu peux les référencer explicitement avec `@project.mdc`, `@testing.mdc`, `@debugging.mdc`, `@architecture.mdc` ou `@environments.mdc` dans tes réponses si nécessaire. La règle `project.mdc` est toujours active (`alwaysApply: true`), donc elle est toujours disponible.
 
@@ -273,6 +274,15 @@ Avant de créer un composant/service, vérifier :
 10. [ ] Les tests utilisent-ils Vitest avec `provideZonelessChangeDetection()` ?
 11. [ ] Les tests utilisent-ils `fixture.whenStable()` au lieu de `detectChanges()` ?
 12. [ ] **Documentation JSDoc/TSDoc ajoutée pour l'API publique** (services, composants shared-ui)
+13. [ ] **Pas d'imports lourds** (lodash, moment) → Utiliser alternatives légères
+14. [ ] **NgOptimizedImage** utilisé pour toutes les images
+15. [ ] **Bundle analysé** (si nouvelle feature ou dépendance ajoutée) :
+   ```bash
+   npm run analyze:quick
+   ```
+   - Augmentation < 20 KB ? ✅ OK
+   - Augmentation > 20 KB ? ⚠️ Justifier dans le commit message
+   - Augmentation > 50 KB ? ❌ Refactoring requis
 
 ## 📝 Documentation JSDoc/TSDoc (Obligatoire)
 

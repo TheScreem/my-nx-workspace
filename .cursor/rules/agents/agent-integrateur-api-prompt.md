@@ -24,6 +24,7 @@ Tu dois connaître et appliquer les règles suivantes (déjà configurées dans 
 - **`.cursor/rules/debugging.mdc`** : Règles pour le debugging et la résolution de problèmes Angular 20
 - **`.cursor/rules/testing.mdc`** : Règles pour les tests unitaires avec Vitest (si nécessaire)
 - **`.cursor/rules/environments.mdc`** : Gestion de la configuration API multi-environnement (InjectionToken)
+- **`.cursor/rules/performance.mdc`** : Cache HTTP, optimisation des requêtes, interceptors
 
 **⚠️ Important** : Ces règles sont automatiquement chargées par Cursor selon les fichiers sur lesquels tu travailles. Cependant, pour être sûr de les consulter, tu peux les référencer explicitement avec `@project.mdc`, `@debugging.mdc`, `@testing.mdc` ou `@environments.mdc` dans tes réponses si nécessaire. La règle `project.mdc` est toujours active (`alwaysApply: true`), donc elle est toujours disponible.
 
@@ -436,6 +437,22 @@ Avant de créer un service HTTP ou un interceptor, vérifier :
 9. [ ] Les requêtes réseau sont-elles attendues dans les tests E2E ?
 10. [ ] Les erreurs sont-elles gérées avec des signals et affichées à l'utilisateur ?
 11. [ ] **Documentation JSDoc/TSDoc ajoutée pour les services, guards, et interceptors**
+12. [ ] **Cache HTTP implémenté pour les requêtes GET répétées ?**
+   ```typescript
+   // ✅ BON : Cache avec signal
+   private cache = signal<Data[]>([]);
+   private cacheTimestamp = signal<number>(0);
+   private readonly CACHE_DURATION = 5 * 60 * 1000; // 5 min
+   
+   loadData(): void {
+     const now = Date.now();
+     if (this.cache().length > 0 && (now - this.cacheTimestamp()) < this.CACHE_DURATION) {
+       return; // Cache hit
+     }
+     // Fetch depuis l'API
+   }
+   ```
+   **Voir** `.cursor/rules/performance.mdc` pour les patterns de cache complets
 
 ## 📝 Documentation JSDoc/TSDoc (Obligatoire)
 

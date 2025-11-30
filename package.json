@@ -35,7 +35,11 @@
     "graph:feature-orders": "nx graph --focus=feature-orders",
     "graph:layout": "nx graph --focus=layout",
     "graph:libs": "nx graph --exclude=mini-crm",
-    "graph:show": "nx show project mini-crm --web"
+    "graph:show": "nx show project mini-crm --web",
+    "analyze": "nx build mini-crm --configuration production --source-map && source-map-explorer dist/apps/mini-crm/browser/**/*.js --html dist/bundle-report.html",
+    "analyze:json": "nx build mini-crm --configuration production --source-map && source-map-explorer dist/apps/mini-crm/browser/**/*.js --json dist/bundle-report.json",
+    "analyze:serve": "npm run analyze && npx http-server dist -o bundle-report.html -p 8081",
+    "analyze:quick": "source-map-explorer dist/apps/mini-crm/browser/**/*.js --html dist/bundle-report.html && npx http-server dist -o bundle-report.html -p 8081"
   },
   "private": true,
   "dependencies": {
@@ -84,6 +88,7 @@
     "jsdom": "~22.1.0",
     "nx": "21.4.0",
     "prettier": "^2.6.2",
+    "source-map-explorer": "^2.5.3",
     "tslib": "^2.3.0",
     "typescript": "~5.8.2",
     "typescript-eslint": "^8.29.0",
